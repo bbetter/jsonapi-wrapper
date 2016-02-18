@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "page":"1"
+  },
+  "data": {
+    "id": "e02404ed-4cd2-4364-9374-2d71994a35c8",
+    "type": "users",
+    "attributes": {
+      "email": "andriy.puhach@teamvoy.com"
+    },
+    "links": {
+      "self": "/users/e02404ed-4cd2-4364-9374-2d71994a35c8"
+    },
+    "relationships": {
+      "profile": {
+        "links": {
+          "self": "/users/e02404ed-4cd2-4364-9374-2d71994a35c8/relationships/profile",
+          "related": "/users/e02404ed-4cd2-4364-9374-2d71994a35c8/profile"
+        },
+        "data": {
+          "type": "profiles",
+          "id": "e66878ff-8813-4527-897d-bbec8f56dd74"
+        }
+      }
+    }
+  },
+  "included": [
+    {
+      "id": "e66878ff-8813-4527-897d-bbec8f56dd74",
+      "type": "profiles",
+      "attributes": {
+        "first-name": null,
+        "last-name": null,
+        "middle-name": null,
+        "contact-number": null,
+        "business-name": null,
+        "profile-image": null,
+        "address": null,
+        "company-name": null
+      },
+      "links": {
+        "self": "/profiles/e66878ff-8813-4527-897d-bbec8f56dd74"
+      }
+    }
+  ]
+}
