@@ -2,8 +2,6 @@ package com.teamvoy.jsonapi;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonParseException;
 
 import org.junit.Test;
 
@@ -18,38 +16,43 @@ import static org.junit.Assert.assertEquals;
 public class JsonApiTransformerUnitTests {
 
     private final Map<String,String> simpleTestCases =  new HashMap<String, String>() {{
-        put("{\"name\":\"Andrew\",\"id\":\"1\",\"type\":\"person\"}",
+        put("{\"data\":{\"name\":\"Andrew\",\"id\":\"1\",\"type\":\"person\"},\"meta\":null}",
                 "{data:{'type':'person','id':'1',attributes:{'name':'Andrew'}}}");
-        put("{\"name\":\"Andrew\",\"surname\":\"Puhach\",\"id\":\"1\",\"type\":\"person\"}",
+        put("{\"data\":{\"name\":\"Andrew\",\"surname\":\"Puhach\",\"id\":\"1\",\"type\":\"person\"},\"meta\":null}",
                 "{data:{'type':'person','id':'1',attributes:{'name':'Andrew',surname:'Puhach'}}}");
     }};
 
-    @Test
-    public void emptyJsonShouldBeCorrect(){
-        assertEquals("{}",JsonApiTransformer.transform(new Gson().fromJson("{}", JsonElement.class)).toString());
+    private final Map<String,String> notSoSimpleTestCases = new HashMap<String,String>(){{
+        put("{\"data\":{\"name\":\"Andrew\",\"id\":\"1\",\"type\":\"person\",\"device\":{\"id\":\"1\",\"type\":\"devices\"}},\"meta\":null}",
+                "{'data':{'type':'person','id':'1','attributes':{'name':'Andrew'},'relationships':{'device':{'data':{'id':1,'type':'devices'}}}},'included':[{'id':1,'type':'devices','attributes':{}}]}");
+    }};
+
+    @Test(expected = JsonApiException.class)
+    public void emptyJsonShouldFailWithException() throws JsonApiException {
+        JsonApiTransformer.transform(new Gson().fromJson("{}", JsonElement.class));
+    }
+
+    @Test(expected = JsonApiException.class)
+    public void nullJsonShouldFailWithException() throws JsonApiException{
+        JsonApiTransformer.transform(null);
+    }
+
+    @Test(expected = JsonApiException.class)
+    public void notJsonAPIStyleShoulFailWithException() throws JsonApiException{
+        JsonApiTransformer.transform(new Gson().fromJson("{'name':'Andrew'}",JsonElement.class));
     }
 
     @Test
-    public void nullJsonShouldBeCorrect(){
-        assertEquals(JsonNull.INSTANCE,JsonApiTransformer.transform(null));
-    }
-
-
-    @Test
-    public void notJsonAPIStyleShouldBeCorrect(){
-        assertEquals("{\"name\":\"Andrew\"}",JsonApiTransformer.transform(new Gson().fromJson("{'name':'Andrew'}",JsonElement.class)).toString());
-    }
-
-    @Test
-    public void simpleJsonShouldBeCorrect(){
+    public void simpleJsonShouldSuccess() throws JsonApiException{
         for(Map.Entry<String,String> testCase:simpleTestCases.entrySet()) {
             assertEquals(testCase.getKey(), JsonApiTransformer.transform(new Gson().fromJson(testCase.getValue(), JsonElement.class)).toString());
         }
     }
 
-    @Test(expected = JsonParseException.class)
-    public void wrongJsonShouldFailWithException(){
-        //missing closing parenthesis
-        JsonApiTransformer.transform(new Gson().fromJson("{'name':'Andrew'",JsonElement.class));
+    @Test
+    public void withIncludesShouldSuccess() throws JsonApiException{
+        for(Map.Entry<String,String> testCase:notSoSimpleTestCases.entrySet()) {
+            assertEquals(testCase.getKey(), JsonApiTransformer.transform(new Gson().fromJson(testCase.getValue(), JsonElement.class)).toString());
+        }
     }
 }
