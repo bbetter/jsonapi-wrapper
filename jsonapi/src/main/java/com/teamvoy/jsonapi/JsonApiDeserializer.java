@@ -16,11 +16,6 @@ import java.lang.reflect.Type;
 public class JsonApiDeserializer<T> implements JsonDeserializer<T> {
     @Override
     public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        try {
-            return new Gson().fromJson(JsonApiTransformer.transform(json),typeOfT);
-        } catch (JsonApiException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return new Gson().fromJson(JsonApiTransformer.transform(json),typeOfT);
     }
 }
